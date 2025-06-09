@@ -34,12 +34,12 @@ Antes de começar, você vai precisar ter as seguintes ferramentas instaladas:
 
 1.  **Clone o repositório do GitHub:**
     ```bash
-    git clone [https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git](https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git)
+    git clone https://github.com/lsouza32/blog.git
     ```
 
 2.  **Navegue até a pasta do projeto:**
     ```bash
-    cd NOME_DA_PASTA_DO_REPOSITORIO
+    cd blog
     ```
 
 3.  **Instale todas as dependências do projeto:**
