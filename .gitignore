@@ -1,0 +1,10 @@
+# Dependências do Node
+node_modules
+
+# Arquivo do Banco de Dados SQLite
+# (Não é uma boa prática enviar o banco de dados, apenas o schema)
+prisma/dev.db
+prisma/dev.db-journal
+
+# Arquivos de log do Prisma
+prisma/prisma-client.log

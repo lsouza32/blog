@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog - Interface de Controle</title>
+    <style>
+        /* CSS Básico para organizar a página */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 20px; 
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 { 
+            color: #1a1a1a;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .post { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            background-color: #fff;
+        }
+        form { 
+            margin-top: 20px; 
+            padding: 20px; 
+            border: 1px solid #eee;
+            border-radius: 8px; 
+            background-color: #fff;
+        }
+        input, textarea { 
+            margin-bottom: 10px; 
+            padding: 10px; 
+            width: calc(100% - 24px); 
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button { 
+            padding: 12px 18px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button.delete { 
+            background-color: #dc3545; 
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Blog - Painel de Controle</h1>
+    <p>Use esta página para interagir com a API e o banco de dados.</p>
+
+    <h2>Criar um Novo Post Padrão</h2>
+    <button id="create-btn">Criar Post</button>
+
+    <hr style="margin: 30px 0;">
+
+    <h2>Atualizar um Post</h2>
+    <form id="update-form">
+        <input type="number" id="update-id" placeholder="ID do post para atualizar" required>
+        <input type="text" id="update-title" placeholder="Novo título" required>
+        <textarea id="update-content" placeholder="Novo conteúdo" required></textarea>
+        <button type="submit">Atualizar Post</button>
+    </form>
+    
+    <hr style="margin: 30px 0;">
+
+    <h2>Deletar um Post</h2>
+    <form id="delete-form">
+        <input type="number" id="delete-id" placeholder="ID do post para deletar" required>
+        <button type="submit" class="delete">Deletar Post</button>
+    </form>
+
+    <hr style="margin: 30px 0;">
+
+    <h2>Posts Existentes</h2>
+    <div id="posts-list">Carregando posts...</div>
+
+    <script>
+        const API_URL = '/api/posts'; // A URL base da nossa API de posts
+
+        // READ: Função para buscar e exibir todos os posts na tela ----------------------------
+        async function fetchPosts() {
+            const response = await fetch(API_URL);
+            const posts = await response.json();
+            
+            const postsListDiv = document.getElementById('posts-list');
+            postsListDiv.innerHTML = ''; // Limpa a lista antes de recarregar
+
+            if (posts.length === 0) {
+                postsListDiv.innerHTML = '<p>Nenhum post encontrado. Crie um!</p>';
+            } else {
+                posts.forEach(post => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post';
+                    postDiv.innerHTML = `
+                        <h3>#${post.id}: ${post.title}</h3>
+                        <p>${post.content || 'Sem conteúdo.'}</p>
+                    `;
+                    postsListDiv.appendChild(postDiv);
+                });
+            }
+        }
+
+        // CREATE: Evento de clique no botão de criar ----------------------------
+        document.getElementById('create-btn').addEventListener('click', async () => {
+            await fetch(API_URL, {
+                method: 'POST' // Envia a requisição para criar nosso post padrão
+            });
+            alert('Post padrão criado com sucesso!');
+            fetchPosts(); // Atualiza a lista de posts na tela
+        });
+
+        // UPDATE: Evento de envio do formulário de atualização ----------------------------
+        document.getElementById('update-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede que a página recarregue
+
+            const id = document.getElementById('update-id').value;
+            const title = document.getElementById('update-title').value;
+            const content = document.getElementById('update-content').value;
+
+            // Envia a requisição para o backend com os novos dados no corpo (body)
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content }) // Converte o objeto JS para o formato JSON
+            });
+
+            if (response.ok) {
+                alert(`Post #${id} atualizado com sucesso!`);
+                fetchPosts();
+                // Limpa os campos do formulário após a atualização
+                document.getElementById('update-id').value = '';
+                document.getElementById('update-title').value = '';
+                document.getElementById('update-content').value = '';
+            } else {
+                alert(`Erro ao atualizar post #${id}. Verifique se o ID existe.`);
+            }
+        });
+
+        // DELETE: Evento de envio do formulário de deleção ----------------------------
+        document.getElementById('delete-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const id = document.getElementById('delete-id').value;
+
+            if (confirm(`Tem certeza que deseja deletar o post de ID #${id}?`)) {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert(`Post #${id} deletado com sucesso!`);
+                    fetchPosts();
+                    // Limpa o campo de ID após a deleção
+                    document.getElementById('delete-id').value = '';
+                } else {
+                    alert(`Erro ao deletar post #${id}. Verifique se o ID existe.`);
+                }
+            }
+        });
+
+        // Ação inicial: Carrega todos os posts assim que a página é aberta
+        fetchPosts();
+    </script>
+</body>
+</html>
